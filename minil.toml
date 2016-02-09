@@ -1,0 +1,4 @@
+name = "Dredd-Hooks"
+# badges = ["travis"]
+module_maker="ModuleBuildTiny"
+
