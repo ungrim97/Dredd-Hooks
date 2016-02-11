@@ -3,7 +3,6 @@ use strict;
 use warnings;
 
 use Dredd::Hooks;
-use Dredd::Transaction;
 use IO::All;
 use JSON;
 use Carp::Always;
@@ -16,16 +15,12 @@ print "Starting\n";
 while (my $socket = io('127.0.0.1:61321')->accept){
     while (my $message = $serialiser->decode($socket->getline)){
         my $event = $message->{event};
-        my $data  = $message->{data};
-        $data = [$data] unless ref $data eq 'ARRAY';
-
-        my $transactions = [map {Dredd::Transaction->new($_)} @{$data}];
         if ($event && (my $method = $hooks->can($event))){
             $socket->print(
                 $serialiser->encode({
                     "uuid"  => $message->{uuid},
                     "event" => $message->{event},
-                    "data"  => $hooks->$method($transactions)
+                    "data"  => $hooks->$method($message->{data})
                 })
                 ."\n"
             );
