@@ -5,27 +5,34 @@ use Moo;
 our $VERSION = "0.01";
 
 use Hash::Merge;
-use Types::Standard qw/HashRef/;
+use Types::Standard qw/HashRef ArrayRef/;
 
-has hooks => (
-    is => 'ro',
+has _hooks => (
+    is => 'lazy',
     isa => HashRef
 );
 
-sub BUILDARGS {
-    my ($self, %args) = @_;
+has hook_files => (
+    is => 'ro',
+    isa => ArrayRef
+);
 
-    $args{hooks} = $self->_parse_hooks(delete $args{hook_files});
-    return \%args;
-}
+# We need routines called 'before' and 'after' which clash with Moo
+no Moo;
 
-sub _parse_hooks {
-    my ($self, $hook_files) = @_;
+sub _build__hooks {
+    my ($self) = @_;
 
-    return unless $hook_files
-    my $hooks;
+    my $hook_files = $self->hook_files;
+    return unless $hook_files;
+    return unless scalar @$hook_files;
+
+    my $hooks = {};
+    my $merger = Hash::Merge->new('RETAINMENT_PRECEDENT');
     for my $hook_file ($hook_files){
-        $hooks = Hash::Merge::merge($hooks, do $hook_file);
+        my $hook = do $hook_file;
+        next unless $hook && ref $hook eq 'HASH';
+        $hooks = $merger->merge($hooks, $hook);
     }
 
     return $hooks;
