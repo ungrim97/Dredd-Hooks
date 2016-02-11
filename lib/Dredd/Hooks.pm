@@ -110,7 +110,7 @@ sub afterEach {
     my ($self, $transaction) = @_;
 
     return $self->_run_hooks(
-        $self->hooks->{afterEach},
+        $self->_hooks->{afterEach},
         $transaction
     );
 }
@@ -119,7 +119,7 @@ sub afterAll {
     my ($self, $transaction) = @_;
 
     return $self->_run_hooks(
-        $self->hooks->{afterAll},
+        $self->_hooks->{afterAll},
         $transaction
     );
 }
