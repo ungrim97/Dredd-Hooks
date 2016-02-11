@@ -2,9 +2,29 @@
 use strict;
 use warnings;
 
+use Dredd::Hooks;
+use Dredd::Transaction;
 use IO::All;
+use JSON;
+
+my $hooks = Dredd::Hooks->new(hook_files => [@ARGV]);
+
 print "Starting\n";
 
-while(my $socket = io(':61321')->fork->accept){
-    
+while(my $socket = io(':61321')->accept){
+    my $message = JSON::decode_json($socket->getline);
+
+    my $event = $message->{event};
+    my $data  = $message->{data};
+
+    if ($event && (my $method = $hooks->can($event))){
+        $socket->print(
+            JSON::encode_json(
+                $hooks->$method(Dredd::Transaction->new($data))
+            )
+            ."\n"
+        );
+    } else {
+        $socket->print(JSON::encode_json($message));
+    }
 }
