@@ -8,18 +8,19 @@ use IO::All;
 use JSON;
 
 my $hooks = Dredd::Hooks->new(hook_files => [@ARGV]);
+my $serialiser = JSON->new->convert_blessed->utf8;
 
 print "Starting\n";
 
 while(my $socket = io(':61321')->accept){
-    my $message = JSON::decode_json($socket->getline);
+    my $message = $serialiser->decode($socket->getline);
 
     my $event = $message->{event};
     my $data  = $message->{data};
 
     if ($event && (my $method = $hooks->can($event))){
         $socket->print(
-            JSON::encode_json(
+            $serialiser->encode(
                 $hooks->$method(Dredd::Transaction->new($data))
             )
             ."\n"
