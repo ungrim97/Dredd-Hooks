@@ -6,26 +6,31 @@ use Dredd::Hooks;
 use Dredd::Transaction;
 use IO::All;
 use JSON;
+use Carp::Always;
 
-my $hooks = Dredd::Hooks->new(hook_files => [@ARGV]);
+my $hooks = Dredd::Hooks->new(hook_files => \@ARGV);
 my $serialiser = JSON->new->convert_blessed->utf8;
 
 print "Starting\n";
 
-while(my $socket = io(':61321')->accept){
-    my $message = $serialiser->decode($socket->getline);
+while (my $socket = io('127.0.0.1:61321')->accept){
+    while (my $message = $serialiser->decode($socket->getline)){
+        my $event = $message->{event};
+        my $data  = $message->{data};
+        $data = [$data] unless ref $data eq 'ARRAY';
 
-    my $event = $message->{event};
-    my $data  = $message->{data};
-
-    if ($event && (my $method = $hooks->can($event))){
-        $socket->print(
-            $serialiser->encode(
-                $hooks->$method(Dredd::Transaction->new($data))
-            )
-            ."\n"
-        );
-    } else {
-        $socket->print(JSON::encode_json($message));
+        my $transactions = [map {Dredd::Transaction->new($_)} @{$data}];
+        if ($event && (my $method = $hooks->can($event))){
+            $socket->print(
+                $serialiser->encode({
+                    "uuid"  => $message->{uuid},
+                    "event" => $message->{event},
+                    "data"  => $hooks->$method($transactions)
+                })
+                ."\n"
+            );
+        } else {
+            $socket->print(JSON::encode_json($message));
+        }
     }
 }
