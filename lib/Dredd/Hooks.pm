@@ -38,84 +38,90 @@ sub _build__hooks {
     return $hooks;
 }
 
+sub _run_hooks {
+    my ($self, $hooks, $transaction) = @_;
+
+    $hooks = [$hooks] unless ref $hooks eq 'ARRAY';
+
+    for my $hook (@$hooks){
+        next unless $hook && ref $hook eq 'CODE';
+
+        $hook->($transaction);
+    }
+
+    return $transaction;
+}
+
 sub before {
     my ($self, $transaction) = @_;
 
-    my $hook = $self->hooks->{before}{$transaction->name};
-
-    return unless $hook;
-
-    return $hook->($transaction);
-}
-
-sub beforeAll {
-    my ($self, $transaction) = @_;
-
-    my $hook = $self->hooks->{beforeAll};
-
-    return unless $hook;
-
-    return $hook->($transaction);
-}
-
-sub beforeEach {
-    my ($self, $transaction) = @_;
-
-    my $hook = $self->hooks->{beforeEach};
-
-    return unless $hook;
-
-    return $hook->($transaction);
-}
-
-sub beforeEachValidation {
-    my ($self, $transaction) = @_;
-
-    my $hook = $self->hooks->{beforeEachValidation};
-
-    return unless $hook;
-
-    return $hook->($transaction);
-}
-
-sub beforeValidation {
-    my ($self, $transaction) = @_;
-
-    my $hook = $self->hooks->{beforeValidation}{$transaction->name};
-
-    return unless $hook;
-
-    return $hook->($transaction);
+    return $self->_run_hooks(
+        $self->_hooks->{before}{$transaction->name},
+        $transaction
+    );
 }
 
 sub after {
     my ($self, $transaction) = @_;
 
-    my $hook = $self->hooks->{after}{$transaction->name};
+    return $self->_run_hooks(
+        $self->_hooks->{after}{$transaction->name},
+        $transaction
+    );
+}
 
-    return unless $hook;
+sub beforeAll {
+    my ($self, $transaction) = @_;
 
-    return $hook->($transaction);
+    return $self->_run_hooks(
+        $self->_hooks->{beforeAll},
+        $transaction
+    );
+}
+
+sub beforeEach {
+    my ($self, $transaction) = @_;
+
+    return $self->_run_hooks(
+        $self->_hooks->{beforeEach},
+        $transaction
+    );
+}
+
+sub beforeEachValidation {
+    my ($self, $transaction) = @_;
+
+    return $self->_run_hooks(
+        $self->_hooks->{beforeEachValidation},
+        $transaction
+    );
+}
+
+sub beforeValidation {
+    my ($self, $transaction) = @_;
+
+    return $self->_run_hooks(
+        $self->_hooks->{beforeValidation}{$transaction->name},
+        $transaction
+    );
 }
 
 sub afterEach {
     my ($self, $transaction) = @_;
 
-    my $hook = $self->hooks->{afterEach};
-
-    return unless $hook;
-
-    return $hook->($transaction);
+    return $self->_run_hooks(
+        $self->hooks->{afterEach},
+        $transaction
+    );
 }
 
 sub afterAll {
     my ($self, $transaction) = @_;
 
-    my $hook = $self->hooks->{afterAll};
-
-    return unless $hook;
-
-    return $hook->($transaction);
+    return $self->_run_hooks(
+        $self->hooks->{afterAll},
+        $transaction
+    );
 }
 
 1;
