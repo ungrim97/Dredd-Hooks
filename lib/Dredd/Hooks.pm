@@ -23,11 +23,11 @@ no Moo;
 sub _build__hooks {
     my ($self) = @_;
 
-    my $hook_files = $self->hook_files;
-    return unless $hook_files;
-    return unless scalar @$hook_files;
-
     my $hooks = {};
+    my $hook_files = $self->hook_files;
+    return $hooks unless $hook_files;
+    return $hooks unless scalar @$hook_files;
+
     my $merger = Hash::Merge->new('RETAINMENT_PRECEDENT');
     for my $hook_file ($hook_files){
         my $hook = do $hook_file;
