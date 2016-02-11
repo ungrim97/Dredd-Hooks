@@ -5,6 +5,10 @@ use warnings;
 use Dredd::Hooks;
 use IO::All;
 use JSON;
+use Log::Log4perl;
+Log::Log4perl->init('log4perl.conf');
+use Log::Any::Adapter;
+Log::Any::Adapter->set('Log4perl');
 use Carp::Always;
 
 my $hooks = Dredd::Hooks->new(hook_files => \@ARGV);

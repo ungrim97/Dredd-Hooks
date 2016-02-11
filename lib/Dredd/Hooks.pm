@@ -1,6 +1,7 @@
 package Dredd::Hooks;
 
 use Moo;
+use Log::Any;
 
 our $VERSION = "0.01";
 
@@ -15,6 +16,11 @@ has _hooks => (
 has hook_files => (
     is => 'ro',
     isa => ArrayRef
+);
+
+has log => (
+    is => 'ro',
+    default => sub { Log::Any->get_logger },
 );
 
 # We need routines called 'before' and 'after' which clash with Moo
@@ -47,6 +53,8 @@ sub _build__hooks {
 sub _run_hooks {
     my ($self, $hooks, $transaction) = @_;
 
+    use Data::Dumper;
+    $self->log->info(Dumper($transaction));
     $hooks = [$hooks] unless ref $hooks eq 'ARRAY';
 
     for my $hook (@$hooks){
@@ -70,6 +78,8 @@ sub before {
 sub after {
     my ($self, $transaction) = @_;
 
+    use Data::Dumper;
+    $self->log->info(Dumper($transaction));
     return $self->_run_hooks(
         $self->_hooks->{after}{$transaction->{name}},
         $transaction
