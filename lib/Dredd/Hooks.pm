@@ -29,8 +29,14 @@ sub _build__hooks {
     return $hooks unless scalar @$hook_files;
 
     my $merger = Hash::Merge->new('RETAINMENT_PRECEDENT');
-    for my $hook_file ($hook_files){
+    for my $hook_file (@$hook_files){
+        next unless -e $hook_file;
+
         my $hook = do $hook_file;
+
+        die "Couldn't compile hook $hook_file: $@" if $@;
+        die "Couldn't read hook $hook_file: $!" if $!;
+
         next unless $hook && ref $hook eq 'HASH';
         $hooks = $merger->merge($hooks, $hook);
     }
@@ -56,7 +62,7 @@ sub before {
     my ($self, $transaction) = @_;
 
     return $self->_run_hooks(
-        $self->_hooks->{before}{$transaction->name},
+        $self->_hooks->{before}{$transaction->{name}},
         $transaction
     );
 }
@@ -65,7 +71,7 @@ sub after {
     my ($self, $transaction) = @_;
 
     return $self->_run_hooks(
-        $self->_hooks->{after}{$transaction->name},
+        $self->_hooks->{after}{$transaction->{name}},
         $transaction
     );
 }
@@ -101,7 +107,7 @@ sub beforeValidation {
     my ($self, $transaction) = @_;
 
     return $self->_run_hooks(
-        $self->_hooks->{beforeValidation}{$transaction->name},
+        $self->_hooks->{beforeValidation}{$transaction->{name}},
         $transaction
     );
 }
