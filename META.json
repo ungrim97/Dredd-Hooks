@@ -52,5 +52,16 @@
       }
    },
    "release_status" : "unstable",
+   "resources" : {
+      "bugtracker" : {
+         "web" : "https://github.com/ungrim97/Dredd-Hooks/issues"
+      },
+      "homepage" : "https://github.com/ungrim97/Dredd-Hooks",
+      "repository" : {
+         "type" : "git",
+         "url" : "git://github.com/ungrim97/Dredd-Hooks.git",
+         "web" : "https://github.com/ungrim97/Dredd-Hooks"
+      }
+   },
    "version" : "0.01"
 }
