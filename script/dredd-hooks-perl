@@ -7,7 +7,8 @@ use IO::All;
 use JSON;
 use Carp::Always;
 
-my $hooks = Dredd::Hooks->new(hook_files => \@ARGV);
+my $hooks = Dredd::Hooks->new(hook_files => [glob(join ' ', @ARGV)]);
+
 my $serialiser = JSON->new->convert_blessed->utf8;
 my $socket = io('127.0.0.1:61321');
 

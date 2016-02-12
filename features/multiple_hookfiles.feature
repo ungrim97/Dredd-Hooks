@@ -19,48 +19,60 @@ Feature: Multiple hook files with a glob
           Hello World!
       """
 
-  @debug
+  @announce
   Scenario:
     Given a file named "hookfile1.pl" with:
       """
       ## Implement before hook writing to standard output text: "It's me, File1"
       ##
       ## So, replace following pseudo code with yours:
-      #
-      #require 'mylanguagehooks'
-      #
-      #before("/message > GET") { |transaction|
-      #  echo "It's me, File1"
-      #}
-      #
+    use strict;
+    use warnings;
+
+    {
+        before => {
+            "/message > GET" => sub {
+                my ($transaction) = @_;
+                print "It's me, File1\n";
+            }
+        }
+    }
       """
     And a file named "hookfile2.pl" with:
       """
       ## Implement before hook writing to standard output text: "It's me, File2"
       ##
       ## So, replace following pseudo code with yours:
-      #
-      #require 'mylanguagehooks'
-      #
-      #before("/message > GET") { |transaction|
-      #  echo "It's me, File2"
-      #}
-      #
+    use strict;
+    use warnings;
+
+    {
+        before => {
+            "/message > GET" => sub {
+                my ($transaction) = @_;
+                print "It's me, File2\n";
+            }
+        }
+    }
       """
     And a file named "hookfile_to_be_globed.pl" with:
       """
       ## Implement before hook writing to standard output text: "It's me, File3"
       ##
       ## So, replace following pseudo code with yours:
-      #
-      #require 'mylanguagehooks'
-      #
-      #before("/message > GET") { |transaction|
-      #  echo "It's me, File3"
-      #}
-      #
+    use strict;
+    use warnings;
+
+    {
+        before => {
+            "/message > GET" => sub {
+                my ($transaction) = @_;
+                print "It's me, File3\n";
+            }
+        }
+    }
       """
-    When I run `dredd ./apiary.apib http://localhost:4567 --server "ruby server.rb" --language dredd-hooks-perl --hookfiles ./hookfile1.pl --hookfiles ./hookfile2.v --hookfiles ./hookfile_*.pl`
+    When I run `dredd ./apiary.apib http://localhost:4567 --server "ruby server.rb" --language dredd-hooks-perl --hookfiles ./hookfile1.pl --hookfiles ./hookfile2.pl --hookfiles ./hookfile_*.pl`
     Then the exit status should be 0
     And the output should contain:
       """
