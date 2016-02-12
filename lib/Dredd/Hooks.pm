@@ -1,11 +1,12 @@
 package Dredd::Hooks;
 
 use Moo;
+
+use Dredd::Hooks::Methods -handler;
 use Log::Any;
 
 our $VERSION = "0.01";
 
-use Hash::Merge;
 use Types::Standard qw/HashRef ArrayRef/;
 
 has _hooks => (
@@ -31,10 +32,9 @@ sub _build__hooks {
 
     my $hooks = {};
     my $hook_files = $self->hook_files;
-    return $hooks unless $hook_files;
-    return $hooks unless scalar @$hook_files;
 
-    my $merger = Hash::Merge->new('RETAINMENT_PRECEDENT');
+    return $hooks unless $hook_files && scalar @$hook_files;
+
     for my $hook_file (@$hook_files){
         next unless -e $hook_file;
 
@@ -42,12 +42,10 @@ sub _build__hooks {
 
         die "Couldn't compile hook $hook_file: $@" if $@;
         die "Couldn't read hook $hook_file: $!" if $!;
-
-        next unless $hook && ref $hook eq 'HASH';
-        $hooks = $merger->merge($hooks, $hook);
     }
 
-    return $hooks;
+    # Get hooks from Dredd::Hooks::Methods;
+    return get_hooks;
 }
 
 sub _run_hooks {
