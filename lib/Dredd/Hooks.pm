@@ -53,8 +53,6 @@ sub _build__hooks {
 sub _run_hooks {
     my ($self, $hooks, $transaction) = @_;
 
-    use Data::Dumper;
-    $self->log->info(Dumper($transaction));
     $hooks = [$hooks] unless ref $hooks eq 'ARRAY';
 
     for my $hook (@$hooks){
@@ -66,50 +64,35 @@ sub _run_hooks {
     return $transaction;
 }
 
+
+sub beforeEach {
+    my ($self, $transaction) = @_;
+
+    return $self->before(
+        $self->_run_hooks(
+            $self->_hooks->{beforeEach},
+            $transaction
+        )
+    );
+}
+
 sub before {
     my ($self, $transaction) = @_;
 
     return $self->_run_hooks(
         $self->_hooks->{before}{$transaction->{name}},
-        $transaction
-    );
-}
-
-sub after {
-    my ($self, $transaction) = @_;
-
-    use Data::Dumper;
-    $self->log->info(Dumper($transaction));
-    return $self->_run_hooks(
-        $self->_hooks->{after}{$transaction->{name}},
-        $transaction
-    );
-}
-
-sub beforeAll {
-    my ($self, $transaction) = @_;
-
-    return $self->_run_hooks(
-        $self->_hooks->{beforeAll},
-        $transaction
-    );
-}
-
-sub beforeEach {
-    my ($self, $transaction) = @_;
-
-    return $self->_run_hooks(
-        $self->_hooks->{beforeEach},
-        $transaction
+        $transaction,
     );
 }
 
 sub beforeEachValidation {
     my ($self, $transaction) = @_;
 
-    return $self->_run_hooks(
-        $self->_hooks->{beforeEachValidation},
-        $transaction
+    $self->beforeValidation(
+        $self->_run_hooks(
+            $self->_hooks->{beforeEachValidation},
+            $transaction
+        )
     );
 }
 
@@ -125,18 +108,37 @@ sub beforeValidation {
 sub afterEach {
     my ($self, $transaction) = @_;
 
-    return $self->_run_hooks(
+    $self->_run_hooks(
         $self->_hooks->{afterEach},
+        $self->after($transaction),
+    )
+}
+
+sub after {
+    my ($self, $transaction) = @_;
+
+    return $self->_run_hooks(
+        $self->_hooks->{after}{$transaction->{name}},
         $transaction
+    )
+}
+
+# *All hooks recieve and arrayref of hook transaction objects
+sub beforeAll {
+    my ($self, $transactions) = @_;
+
+    return $self->_run_hooks(
+        $self->_hooks->{beforeAll},
+        $transactions
     );
 }
 
 sub afterAll {
-    my ($self, $transaction) = @_;
+    my ($self, $transactions) = @_;
 
     return $self->_run_hooks(
         $self->_hooks->{afterAll},
-        $transaction
+        $transactions
     );
 }
 
