@@ -23,17 +23,16 @@ Feature: Failing a transaction
   Scenario:
     Given a file named "hookfile.pl" with:
       """
-      ## Implement before hook failing the transaction by setting string 'Yay! Failed!' as value of key 'fail'
-      ## in the transaction object
-      ##
-      ## So, replace following pseudo code with yours:
-      #
-      #require 'mylanguagehooks'
-      #
-      #before("/message > GET") { |transaction|
-      #  transaction['fail'] == 'Yay! Failed!'
-      #}
-      #
+      use strict;
+      use warnings;
+      {
+        before => {
+            "/message > GET" => sub {
+                my ($transaction) = @_;
+                $transaction->{fail} = 'Yay! Failed!'
+            }
+        }
+      }
       """
     When I run `dredd ./apiary.apib http://localhost:4567 --server "ruby server.rb" --language "dredd-hooks-perl" --hookfiles ./hookfile.pl`
     Then the exit status should be 1
