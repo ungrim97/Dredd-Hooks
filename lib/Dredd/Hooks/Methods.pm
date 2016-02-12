@@ -31,6 +31,8 @@ use Sub::Exporter::Progressive -setup => {
     }
 };
 
+use Hash::Merge;
+
 {
     my $hooks = {};
     sub get_hooks {
