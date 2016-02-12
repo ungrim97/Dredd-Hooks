@@ -9,14 +9,18 @@ use Carp::Always;
 
 my $hooks = Dredd::Hooks->new(hook_files => \@ARGV);
 my $serialiser = JSON->new->convert_blessed->utf8;
+my $socket = io('127.0.0.1:61321');
 
-print "Starting\n";
+{
+    local $| = 1;
+    print "Starting\n";
+}
 
-while (my $socket = io('127.0.0.1:61321')->accept){
-    while (my $message = $serialiser->decode($socket->getline)){
+while (my $client = $socket->accept){
+    while (my $message = $serialiser->decode($client->getline)){
         my $event = $message->{event};
         if ($event && (my $method = $hooks->can($event))){
-            $socket->print(
+            $client->print(
                 $serialiser->encode({
                     "uuid"  => $message->{uuid},
                     "event" => $message->{event},
@@ -25,7 +29,8 @@ while (my $socket = io('127.0.0.1:61321')->accept){
                 ."\n"
             );
         } else {
-            $socket->print(JSON::encode_json($message));
+            $client->print(JSON::encode_json($message));
         }
     }
+    $client->close;
 }
