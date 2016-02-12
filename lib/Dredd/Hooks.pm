@@ -59,6 +59,7 @@ sub _run_hooks {
         next unless $hook && ref $hook eq 'CODE';
 
         $hook->($transaction);
+        STDOUT->flush;
     }
 
     return $transaction;

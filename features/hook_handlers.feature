@@ -29,40 +29,49 @@ Feature: Hook handlers
       ##
       ## So, replace following pseudo code with yours:
       #
-      #require 'mylanguagehooks'
-      #
-      #before("/message > GET") { |transaction|
-      #  echo "before hook handled"
-      #}
-      #
-      #after("/message > GET") { |transaction|
-      #  echo "after hook handled"
-      #}
-      #
-      #before_validation("/message > GET") { |transaction|
-      #  echo "before validation hook handled"
-      #}
-      #
-      #before_all { |transaction|
-      #  echo "before all hook handled"
-      #}
-      #
-      #after_all { |transaction|
-      #  echo "after all hook handled"
-      #}
-      #
-      #before_each { |transaction|
-      #  echo "before each hook handled"
-      #}
-      #
-      #before_each_validation { |transaction|
-      #  echo "before each validation hook handled"
-      #}
+    use strict;
+    use warnings;
 
-      #after_each { |transaction|
-      #  echo "after each hook handled"
-      #}
-
+    {
+        before => {
+            "/message > GET" => sub {
+                my ($transaction) = @_;
+                print "before hook handled\n";
+            }
+        },
+        after => {
+            "/message > GET" => sub {
+                my ($transaction) = @_;
+                print "after hook handled\n";
+            }
+        },
+        beforeValidation => {
+            "/message > GET" => sub {
+                my ($transaction) = @_;
+                print "before validation hook handled\n";
+            }
+        },
+        beforeAll => sub {
+            my ($transactions) = @_;
+            print "before all hook handled\n";
+        },
+        afterAll => sub {
+            my ($transactions) = @_;
+            print "after all hook handled\n";
+        },
+        beforeEach => sub {
+            my ($transaction) = @_;
+            print "before each hook handled\n";
+        },
+        beforeEachValidation => sub {
+            my ($transaction) = @_;
+            print "before each validation hook handled\n";
+        },
+        afterEach => sub {
+            my ($transaction) = @_;
+            print "after each hook handled\n";
+        }
+    }
       """
 
     When I run `dredd ./apiary.apib http://localhost:4567 --server "ruby server.rb" --language dredd-hooks-perl --hookfiles ./hookfile.pl`
