@@ -23,63 +23,59 @@ Feature: Execution order
   Scenario:
     Given a file named "hookfile.pl" with:
       """
-      my $key = 'hooks_modifications';
-      {
-          before => {
-              "/message > GET" => sub {
-                  my ($transaction) = @_;
-                  use DDP; p $transaction;
-                  $transaction->{$key} = [] unless $transaction->{$key};
-                  push @{ $transaction->{$key} }, "before modification";
-              }
-          },
-          after => {
-              "/message > GET" => sub {
-                  my ($transaction) = @_;
-                  use DDP; p $transaction;
-                  $transaction->{$key} = [] unless $transaction->{$key};
-                  push @{ $transaction->{$key} }, "after modification";
-              }
-          },
-          before_validation => {
-              "/message > GET" => sub {
-                  my ($transaction) = @_;
-                  use DDP; p $transaction;
-                  $transaction->{$key} = [] unless $transaction->{$key};
-                  push @{ $transaction->{$key} }, "before validation modification";
-              },
-          },
-          before_all => sub {
-              my ($transaction) = @_;
-                  use DDP; p $transaction;
-              $transaction->{$key} = [] unless $transaction->{$key};
-              push @{ $transaction->{$key} }, "before all modification";
-          },
-          after_all => sub {
-              my ($transaction) = @_;
-                  use DDP; p $transaction;
-              $transaction->{$key} = [] unless $transaction->{$key};
-              push @{ $transaction->{$key} }, "after all modification";
-          },
-          before_each => sub {
-              my ($transaction) = @_;
-                  use DDP; p $transaction;
-              $transaction->{$key} = [] unless $transaction->{$key};
-              push @{ $transaction->{$key} }, "before each modification";
-          },
-          before_each_validation => sub {
-              my ($transaction) = @_;
-                  use DDP; p $transaction;
-              $transaction->{$key} = [] unless $transaction->{$key};
-              push @{ $transaction->{$key} }, "before each validation modification";
-          },
-          after_each => sub {
-              my ($transaction) = @_;
-                  use DDP; p $transaction;
-              $transaction->{$key} = [] unless $transaction->{$key};
-              push @{ $transaction->{$key} }, "after each modification";
-          }
-      };
+    use strict;
+    use warnings;
+    my $key = 'hooks_modifications';
+    {
+        before => {
+            "/message > GET" => sub {
+                my ($transaction) = @_;
+                $transaction->{$key} = [] unless $transaction->{$key};
+                push @{ $transaction->{$key} }, "before modification";
+            }
+        },
+        after => {
+            "/message > GET" => sub {
+                my ($transaction) = @_;
+                $transaction->{$key} = [] unless $transaction->{$key};
+                push @{ $transaction->{$key} }, "after modification";
+            }
+        },
+        beforeValidation => {
+            "/message > GET" => sub {
+                my ($transaction) = @_;
+                $transaction->{$key} = [] unless $transaction->{$key};
+                push @{ $transaction->{$key} },
+                  "before validation modification";
+            },
+        },
+        beforeAll => sub {
+            my ($transactions) = @_;
+            $transactions->[0]{$key} = [] unless $transactions->[0]{$key};
+            push @{ $transactions->[0]{$key} }, "before all modification";
+        },
+        afterAll => sub {
+            my ($transaction) = @_;
+            $transaction->[0]{$key} = [] unless $transaction->[0]{$key};
+            push @{ $transaction->[0]{$key} }, "after all modification";
+        },
+        beforeEach => sub {
+            my ($transaction) = @_;
+            $transaction->{$key} = [] unless $transaction->{$key};
+            push @{ $transaction->{$key} }, "before each modification";
+        },
+        beforeEachValidation => sub {
+            my ($transaction) = @_;
+            $transaction->{$key} = [] unless $transaction->{$key};
+            push @{ $transaction->{$key} },
+              "before each validation modification";
+        },
+        afterEach => sub {
+            my ($transaction) = @_;
+            $transaction->{$key} = [] unless $transaction->{$key};
+            push @{ $transaction->{$key} }, "after each modification";
+        }
+    };
       """
     Given I set the environment variables to:
       | variable                       | value      |
