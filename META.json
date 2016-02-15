@@ -42,6 +42,12 @@
       },
       "runtime" : {
          "requires" : {
+            "Hash::Merge" : "0",
+            "IO::All" : "0",
+            "JSON" : "0",
+            "Moo" : "0",
+            "Sub::Exporter" : "0",
+            "Types::Standard" : "0",
             "perl" : "5.008001"
          }
       },
@@ -63,5 +69,5 @@
          "web" : "https://github.com/ungrim97/Dredd-Hooks"
       }
    },
-   "version" : "0.01"
+   "version" : "0.02"
 }

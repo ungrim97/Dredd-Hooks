@@ -29,7 +29,7 @@ use Moo;
 
 use Dredd::Hooks::Methods '-handler';
 
-our $VERSION = "0.01";
+our $VERSION = "0.02";
 
 use Types::Standard qw/HashRef ArrayRef/;
 
