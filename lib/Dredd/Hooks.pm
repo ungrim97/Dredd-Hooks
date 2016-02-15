@@ -1,55 +1,87 @@
 package Dredd::Hooks;
 
+=encoding utf-8
+
+=head1 NAME
+
+Dredd::Hooks - Handler for running Hook files for Dredd
+
+=head1 SYNOPSIS
+
+    use Dredd::Hooks;
+
+    my $hook_runner = Dredd::Hooks->new(hook_files => [...]);
+
+    my $hook_runner->$event."_hook"
+
+=head1 DESCRIPTION
+
+Dredd::Hooks provides the code to actually run the hooks used in the
+L<Dredd|https://dredd.readthedocs.org> API testing suite.
+
+Unless you are righting your own TCP server to accept Dredd Hook requests
+then you likely want L<Dredd::Hooks::Methods> which describes how to write
+Dredd Hook files.
+
+=cut
+
 use Moo;
 
-use Dredd::Hooks::Methods -handler;
-use Log::Any;
+use Dredd::Hooks::Methods '-handler';
+use Carp::Always;
 
 our $VERSION = "0.01";
 
 use Types::Standard qw/HashRef ArrayRef/;
 
+# Stores the hooks that result from Dredd::Hooks::Methods
 has _hooks => (
     is => 'lazy',
     isa => HashRef
 );
+
+=head1 ATTRIBUTES
+
+=head2 hook_files
+
+An arrayref of fully expanded file names that will be required
+and should contain hook code.
+
+See L<Dredd::Hooks::Methods> for information on creating these
+files
+
+=cut
 
 has hook_files => (
     is => 'ro',
     isa => ArrayRef
 );
 
-has log => (
-    is => 'ro',
-    default => sub { Log::Any->get_logger },
-);
-
-# We need routines called 'before' and 'after' which clash with Moo
-no Moo;
+# Run each hook file in $self->hook_files and then
+# return the value stored in Dredd::Hooks::Methods
 
 sub _build__hooks {
     my ($self) = @_;
 
-    my $hooks = {};
     my $hook_files = $self->hook_files;
-
-    return $hooks unless $hook_files && scalar @$hook_files;
+    return {} unless $hook_files && scalar @$hook_files;
 
     for my $hook_file (@$hook_files){
         next unless -e $hook_file;
 
-        my $hook = do $hook_file;
-
-        die "Couldn't compile hook $hook_file: $@" if $@;
-        die "Couldn't read hook $hook_file: $!" if $!;
+        require $hook_file;
     }
 
-    # Get hooks from Dredd::Hooks::Methods;
-    return get_hooks;
+    return Dredd::Hooks::Methods::get_hooks();
 }
+
+# Run the hook callback specified for this event/transaction
+# combination.
 
 sub _run_hooks {
     my ($self, $hooks, $transaction) = @_;
+
+    return $transaction unless $hooks;
 
     $hooks = [$hooks] unless ref $hooks eq 'ARRAY';
 
@@ -59,15 +91,23 @@ sub _run_hooks {
         $hook->($transaction);
         STDOUT->flush;
     }
-
     return $transaction;
 }
 
+=head1 EVENT METHODS
 
-sub beforeEach {
+=head2 beforeEach_hook (transaction HashRef -> transaction HashRef)
+
+Runs hooks for the BeforeEach event from Dredd. This then calls
+the before_hook before returning. This is because the before event
+is not an event directly called by dredd.
+
+=cut
+
+sub beforeEach_hook {
     my ($self, $transaction) = @_;
 
-    return $self->before(
+    return $self->before_hook(
         $self->_run_hooks(
             $self->_hooks->{beforeEach},
             $transaction
@@ -75,19 +115,35 @@ sub beforeEach {
     );
 }
 
-sub before {
+=head2 before_hook (transaction HashRef -> transaction HashRef)
+
+Runs the before event hooks and returns the modified transaction object
+
+NOTE: This is currently run by the beforeEach handler as the before event
+is not an event directly sent from Dredd.
+
+=cut
+
+sub before_hook {
     my ($self, $transaction) = @_;
 
     return $self->_run_hooks(
         $self->_hooks->{before}{$transaction->{name}},
         $transaction,
-    );
+     );
 }
 
-sub beforeEachValidation {
+=head2 beforeEachValidation_hook (transaction HashRef -> transaction HashRef)
+
+Handles the beforeEachValidation event from Dredd. This then calls the beforeValidation_hook
+to handle the beforeValidation event.
+
+=cut
+
+sub beforeEachValidation_hook {
     my ($self, $transaction) = @_;
 
-    $self->beforeValidation(
+    return $self->beforeValidation_hook(
         $self->_run_hooks(
             $self->_hooks->{beforeEachValidation},
             $transaction
@@ -95,7 +151,16 @@ sub beforeEachValidation {
     );
 }
 
-sub beforeValidation {
+=head2 beforeValidation_hook (transaction HashRef -> transaction HashRef)
+
+Handles the beforeValidation event and returns the modified transaction.
+
+NOTE: This event is called from beforeEachValidation_hook as it is not
+and event directly run from Dredd.
+
+=cut
+
+sub beforeValidation_hook {
     my ($self, $transaction) = @_;
 
     return $self->_run_hooks(
@@ -104,16 +169,32 @@ sub beforeValidation {
     );
 }
 
-sub afterEach {
+=head2 afterEach_hook (transaction HashRef -> transaction HashRef)
+
+Handles the afterEach event from Dredd. Runs the after_hook handler
+first before running hooks for this event.
+
+=cut
+
+sub afterEach_hook {
     my ($self, $transaction) = @_;
 
-    $self->_run_hooks(
+    return $self->_run_hooks(
         $self->_hooks->{afterEach},
-        $self->after($transaction),
+        $self->after_hook($transaction),
     )
 }
 
-sub after {
+=head2 after_hook (transaction HashRef -> transaction HashRef)
+
+Handles the after event and returns the modified transaction.
+
+NOTE: This event is called from the afterEach_hook as it is not
+and event directly run from Dredd.
+
+=cut
+
+sub after_hook {
     my ($self, $transaction) = @_;
 
     return $self->_run_hooks(
@@ -123,7 +204,15 @@ sub after {
 }
 
 # *All hooks recieve and arrayref of hook transaction objects
-sub beforeAll {
+
+=head2 beforeAll (transactions ArrayRef[transaction] -> transactions ArrayRef[transaction])
+
+Handles the beforeAll event from Dredd. Receives an arrayref of transaction hashrefs and
+returns the modified version.
+
+=cut
+
+sub beforeAll_hook {
     my ($self, $transactions) = @_;
 
     return $self->_run_hooks(
@@ -132,7 +221,14 @@ sub beforeAll {
     );
 }
 
-sub afterAll {
+=head2 afterAll (transactions ArrayRef[transaction] -> transactions ArrayRef[transaction])
+
+Handles the afterAll event from Dredd. Receives an arrayref of transaction hashrefs and
+returns the modified version.
+
+=cut
+
+sub afterAll_hook {
     my ($self, $transactions) = @_;
 
     return $self->_run_hooks(
@@ -144,19 +240,10 @@ sub afterAll {
 1;
 __END__
 
-=encoding utf-8
+=head1 BUGS AND REQUESTS
 
-=head1 NAME
-
-Dredd::Hooks - It's new $module
-
-=head1 SYNOPSIS
-
-    use Dredd::Hooks;
-
-=head1 DESCRIPTION
-
-Dredd::Hooks is ...
+This modules source is stored in L<GitHub|https://github.com/ungrim97/Dredd-Hooks>
+and any issues or suggestions should be posted there.
 
 =head1 LICENSE
 

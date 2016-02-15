@@ -23,59 +23,75 @@ Feature: Execution order
   Scenario:
     Given a file named "hookfile.pl" with:
       """
-    use strict;
-    use warnings;
+use strict;
+use warnings;
 
-    use Dredd::Hooks::Methods;
+use Dredd::Hooks::Methods;
 
-    my $key = 'hooks_modifications';
-    before("/message > GET" => sub {
+my $key = 'hooks_modifications';
+before(
+    "/message > GET" => sub {
         my ($transaction) = @_;
         $transaction->{$key} = [] unless $transaction->{$key};
         push @{ $transaction->{$key} }, "before modification";
-    });
+    }
+);
 
-    after("/message > GET" => sub {
+after(
+    "/message > GET" => sub {
         my ($transaction) = @_;
         $transaction->{$key} = [] unless $transaction->{$key};
         push @{ $transaction->{$key} }, "after modification";
-    });
+    }
+);
 
-    beforeValidation("/message > GET" => sub {
+beforeValidation(
+    "/message > GET" => sub {
         my ($transaction) = @_;
         $transaction->{$key} = [] unless $transaction->{$key};
         push @{ $transaction->{$key} }, "before validation modification";
-    });
+    }
+);
 
-    beforeAll(sub {
+beforeAll(
+    sub {
         my ($transactions) = @_;
         $transactions->[0]{$key} = [] unless $transactions->[0]{$key};
         push @{ $transactions->[0]{$key} }, "before all modification";
-    });
+    }
+);
 
-    afterAll(sub {
+afterAll(
+    sub {
         my ($transaction) = @_;
         $transaction->[0]{$key} = [] unless $transaction->[0]{$key};
         push @{ $transaction->[0]{$key} }, "after all modification";
-    });
+    }
+);
 
-    beforeEach(sub {
+beforeEach(
+    sub {
         my ($transaction) = @_;
         $transaction->{$key} = [] unless $transaction->{$key};
         push @{ $transaction->{$key} }, "before each modification";
-    });
+    }
+);
 
-    beforeEachValidation(sub {
+beforeEachValidation(
+    sub {
         my ($transaction) = @_;
         $transaction->{$key} = [] unless $transaction->{$key};
         push @{ $transaction->{$key} }, "before each validation modification";
-    });
+    }
+);
 
-    afterEach(sub {
+afterEach(
+    sub {
         my ($transaction) = @_;
         $transaction->{$key} = [] unless $transaction->{$key};
         push @{ $transaction->{$key} }, "after each modification";
-    });
+    }
+);
       """
     Given I set the environment variables to:
       | variable                       | value      |

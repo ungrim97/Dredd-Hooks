@@ -29,14 +29,14 @@ Feature: Multiple hook files with a glob
     use strict;
     use warnings;
 
-    {
-        before => {
-            "/message > GET" => sub {
-                my ($transaction) = @_;
-                print "It's me, File1\n";
-            }
+    use Dredd::Hooks::Methods;
+
+    before(
+        "/message > GET" => sub {
+            my ($transaction) = @_;
+            print "It's me, File1\n";
         }
-    }
+    );
       """
     And a file named "hookfile2.pl" with:
       """
@@ -46,14 +46,14 @@ Feature: Multiple hook files with a glob
     use strict;
     use warnings;
 
-    {
-        before => {
-            "/message > GET" => sub {
-                my ($transaction) = @_;
-                print "It's me, File2\n";
-            }
+    use Dredd::Hooks::Methods;
+
+    before(
+        "/message > GET" => sub {
+            my ($transaction) = @_;
+            print "It's me, File2\n";
         }
-    }
+      )
       """
     And a file named "hookfile_to_be_globed.pl" with:
       """
@@ -63,14 +63,14 @@ Feature: Multiple hook files with a glob
     use strict;
     use warnings;
 
-    {
-        before => {
-            "/message > GET" => sub {
-                my ($transaction) = @_;
-                print "It's me, File3\n";
-            }
+    use Dredd::Hooks::Methods;
+
+    before(
+        "/message > GET" => sub {
+            my ($transaction) = @_;
+            print "It's me, File3\n";
         }
-    }
+    );
       """
     When I run `dredd ./apiary.apib http://localhost:4567 --server "ruby server.rb" --language dredd-hooks-perl --hookfiles ./hookfile1.pl --hookfiles ./hookfile2.pl --hookfiles ./hookfile_*.pl`
     Then the exit status should be 0

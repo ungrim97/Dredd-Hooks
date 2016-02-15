@@ -23,16 +23,17 @@ Feature: Failing a transaction
   Scenario:
     Given a file named "hookfile.pl" with:
       """
-      use strict;
-      use warnings;
-      {
-        before => {
-            "/message > GET" => sub {
-                my ($transaction) = @_;
-                $transaction->{fail} = 'Yay! Failed!'
-            }
+    use strict;
+    use warnings;
+
+    use Dredd::Hooks::Methods;
+
+    before(
+        "/message > GET" => sub {
+            my ($transaction) = @_;
+            $transaction->{fail} = 'Yay! Failed!';
         }
-      }
+    );
       """
     When I run `dredd ./apiary.apib http://localhost:4567 --server "ruby server.rb" --language "dredd-hooks-perl" --hookfiles ./hookfile.pl`
     Then the exit status should be 1

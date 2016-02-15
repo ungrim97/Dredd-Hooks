@@ -32,46 +32,63 @@ Feature: Hook handlers
     use strict;
     use warnings;
 
-    {
-        before => {
-            "/message > GET" => sub {
-                my ($transaction) = @_;
-                print "before hook handled\n";
-            }
-        },
-        after => {
-            "/message > GET" => sub {
-                my ($transaction) = @_;
-                print "after hook handled\n";
-            }
-        },
-        beforeValidation => {
-            "/message > GET" => sub {
-                my ($transaction) = @_;
-                print "before validation hook handled\n";
-            }
-        },
-        beforeAll => sub {
+    use Dredd::Hooks::Methods;
+
+    before(
+        "/message > GET" => sub {
+            my ($transaction) = @_;
+            print "before hook handled\n";
+        }
+    );
+
+    after(
+        "/message > GET" => sub {
+            my ($transaction) = @_;
+            print "after hook handled\n";
+        }
+    );
+
+    beforeValidation(
+        "/message > GET" => sub {
+            my ($transaction) = @_;
+            print "before validation hook handled\n";
+        }
+    );
+
+    beforeAll(
+        sub {
             my ($transactions) = @_;
             print "before all hook handled\n";
-        },
-        afterAll => sub {
+        }
+    );
+
+    afterAll(
+        sub {
             my ($transactions) = @_;
             print "after all hook handled\n";
-        },
-        beforeEach => sub {
+        }
+    );
+
+    beforeEach(
+        sub {
             my ($transaction) = @_;
             print "before each hook handled\n";
-        },
-        beforeEachValidation => sub {
+        }
+    );
+
+    beforeEachValidation(
+        sub {
             my ($transaction) = @_;
             print "before each validation hook handled\n";
-        },
-        afterEach => sub {
+        }
+    );
+
+    afterEach(
+        sub {
             my ($transaction) = @_;
             print "after each hook handled\n";
         }
-    }
+    );
       """
 
     When I run `dredd ./apiary.apib http://localhost:4567 --server "ruby server.rb" --language dredd-hooks-perl --hookfiles ./hookfile.pl`
