@@ -2,6 +2,8 @@ Revision history for Perl extension Dredd-Hooks
 
 {{$NEXT}}
 
+    - Update licencing information
+
 0.02 2016-02-15T14:34:16Z
 
     - Added missing deps in Cpanfile

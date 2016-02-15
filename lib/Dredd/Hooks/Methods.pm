@@ -281,5 +281,28 @@ sub afterAll {
 
     merge_hook({afterAll => $callback });
 }
-
 1;
+__END__
+
+=head1 BUGS AND REQUESTS
+
+This modules source is stored in L<GitHub|https://github.com/ungrim97/Dredd-Hooks>
+and any issues or suggestions should be posted there.
+
+=head1 AUTHOR
+
+Mike Eve E<lt>ungrim97@gmail.comE<gt>
+
+=head1 LICENSE
+
+Copyright 2016 - Broadbean Technologies, All Rights Reserved.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+=head1 ACKNOWLEDGEMENTS
+
+Thanks to Broadbean for providing time to open source this during one of the regular Hack-days.
+
+=cut
+

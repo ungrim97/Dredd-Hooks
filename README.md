@@ -164,3 +164,23 @@ As such it is an ideal place to run test teardown code.
 
 The hook will receive an array of transaction hashrefs
 representing each transaction that will be implemented.
+
+# BUGS AND REQUESTS
+
+This modules source is stored in [GitHub](https://github.com/ungrim97/Dredd-Hooks)
+and any issues or suggestions should be posted there.
+
+# AUTHOR
+
+Mike Eve &lt;ungrim97@gmail.com>
+
+# LICENSE
+
+Copyright 2016 - Broadbean Technologies, All Rights Reserved.
+
+This library is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+# ACKNOWLEDGEMENTS
+
+Thanks to Broadbean for providing time to open source this during one of the regular Hack-days.
