@@ -28,7 +28,6 @@ Dredd Hook files.
 use Moo;
 
 use Dredd::Hooks::Methods '-handler';
-use Carp::Always;
 
 our $VERSION = "0.01";
 
