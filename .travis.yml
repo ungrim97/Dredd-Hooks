@@ -2,17 +2,11 @@ language: perl
 before_install:
     - npm install -g dredd
     - bundle install
-    - cpanm Module::Build::Tiny@0.039
 script:
-    - perl Build.PL
-    - ./Build build
-    - ./Build test
+    - perl Build.PL && ./Build build && ./Build test
     - ./Build install
     - bundle exec cucumber
 perl:
-  - "5.12"
-  - "5.14"
-  - "5.16"
   - "5.18"
   - "5.20"
   - "5.22"
