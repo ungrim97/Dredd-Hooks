@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/ungrim97/Dredd-Hooks.svg?branch=master)](https://travis-ci.org/ungrim97/Dredd-Hooks)
 # NAME
 
 Dredd::Hooks::Methods - Sugar module for each of writing Dredd Hookfiles

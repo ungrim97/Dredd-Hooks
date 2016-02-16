@@ -32,6 +32,7 @@ STDOUT->flush;
 while (my $client = $socket->accept){
     # Read each line (Each transaction is delimited by "\n"
     while (my $message = $serialiser->decode($client->getline)){
+        $client->autoflush;
 
         # Run the specified event hooks
         my $event = $message->{event};
