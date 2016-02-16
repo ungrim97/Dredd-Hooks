@@ -1,4 +1,4 @@
-requires 'perl', '5.01804';
+requires 'perl', '5.018002';
 requires 'Hash::Merge', '0.200';
 requires 'IO::All', '0.86';
 requires 'JSON', '2.90';
