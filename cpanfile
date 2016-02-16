@@ -1,7 +1,7 @@
 requires 'perl', '5.008001';
 requires 'Hash::Merge', '0.200';
 requires 'IO::All', '0.86';
-requires 'JSON' '2.90';
+requires 'JSON', '2.90';
 requires 'Moo', '2.000002';
 requires 'Module::Build::Tiny', '0.039';
 requires 'Sub::Exporter', '0.987';
