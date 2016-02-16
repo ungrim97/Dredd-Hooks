@@ -1,5 +1,4 @@
 language: perl
-sudo: false
 before_install:
     - npm install -g dredd
     - bundle install
