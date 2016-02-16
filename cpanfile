@@ -3,6 +3,7 @@ requires 'Hash::Merge';
 requires 'IO::All';
 requires 'JSON';
 requires 'Moo';
+requires 'Module::Build::Tiny', '0.035';
 requires 'Sub::Exporter';
 requires 'Types::Standard';
 
