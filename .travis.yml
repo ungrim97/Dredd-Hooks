@@ -2,6 +2,7 @@ language: perl
 before_install:
     - npm install -g dredd
     - bundle install
+    - cpanm Module::Build::Tiny@0.039
 script:
     - perl Build.PL
     - ./Build build
