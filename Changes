@@ -2,6 +2,9 @@ Revision history for Perl extension Dredd-Hooks
 
 {{$NEXT}}
 
+    - use do rather than require for the hookfiles
+    - prevent warning if input not valid json
+
 0.03 2016-02-15T14:55:17Z
 
     - Update licencing information
