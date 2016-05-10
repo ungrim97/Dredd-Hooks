@@ -68,7 +68,7 @@ sub _build__hooks {
     for my $hook_file (@$hook_files){
         next unless -e $hook_file;
 
-        require $hook_file;
+        do $hook_file;
     }
 
     return Dredd::Hooks::Methods::get_hooks();

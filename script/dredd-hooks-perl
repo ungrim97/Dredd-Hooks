@@ -16,6 +16,7 @@ use warnings;
 use Dredd::Hooks;
 use IO::All;
 use JSON;
+use Try::Tiny;
 
 my $hooks = Dredd::Hooks->new(hook_files => [glob(join ' ', @ARGV)]);
 
@@ -31,7 +32,7 @@ STDOUT->flush;
 # Listen to the socket for client connection
 while (my $client = $socket->accept){
     # Read each line (Each transaction is delimited by "\n"
-    while (my $message = $serialiser->decode($client->getline)){
+    while (my $message = try { $serialiser->decode($client->getline) }){
         $client->autoflush;
 
         # Run the specified event hooks
