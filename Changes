@@ -2,6 +2,10 @@ Revision history for Perl extension Dredd-Hooks
 
 {{$NEXT}}
 
+0.06 2017-06-12T13:03:38Z
+
+    - Support passing of hookfile list on cmd line
+
 0.05 2016-05-10T11:06:50Z
 
     - Add code missing in last release
