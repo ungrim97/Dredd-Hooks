@@ -1,5 +1,4 @@
-# A sample Gemfile
-source "https://rubygems.org"
+source 'https://rubygems.org'
 
-gem "aruba"
-gem "sinatra"
+gem "aruba", '~> 0.14.6'
+gem "sinatra", '~> 2.0.4'
